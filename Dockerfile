@@ -19,6 +19,7 @@ RUN apt update &&                  \
         wget                       \
         build-essential            \    
         pkgconf                    \
+        netcat                     \
         sox &&                     \
     /usr/bin/pip3 install          \
          mysqlclient               \

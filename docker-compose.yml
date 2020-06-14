@@ -7,14 +7,14 @@ networks:
 services:
     db:
         image: mysql:5
-        container_name: mysql
+        container_name: pabx_mysql
         environment: 
             - MYSQL_ROOT_PASSWORD=pwdroot
             - MYSQL_DATABASE=asteriskcdrdb
             - MYSQL_USER=cdrdb
             - MYSQL_PASSWORD=cdrpwd
         ports: 
-            - '13306:3306'
+            - '3306:3306'
         volumes:
             - pabx_db_data:/data
         restart: always
@@ -23,8 +23,7 @@ services:
 
     cdr:
         image: pedrorobsonleao/webcdr:0.9.0-alpine
-        # build: .
-        container_name: webcdr
+        container_name: pabx_webcdr
         environment: 
             - TZ=America/Sao_Paulo
             - DB_CLIENT=mysql
@@ -53,9 +52,9 @@ services:
             - 'pabx_net'
 
     pabx:
-         image: pedroleao/asterisk:16.11
-         container_name: pabx
-         entrypoint: 
+         image: pedrorobsonleao/asterisk:16.11
+         container_name: pabx_asterisk
+         environment: 
              - DB_CONNECTION_HOST=db
              - DB_CONNECTION_USER=cdrdb
              - DB_CONNECTION_PASSWORD=cdrpwd
@@ -63,8 +62,6 @@ services:
              - ACL=192.168.0.0\\/24
          ports:
              - '5060:5060'
-               #entrypoint:
-               #- './entrypoint.sh'
          # mapear logs e gravações
          # volumes: 
          #     -

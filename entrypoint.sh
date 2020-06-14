@@ -42,23 +42,33 @@ function _start() {
 
     service asterisk start 2>/dev/null && \
     service asterisk status 2>/dev/null  && \
+    echo ":: open for the business !" && \
     tail -f /dev/null
     
 }
 
 function main() {
-    # [ ! -z ${@} ] && {
-    #     ${@}
-    #     return $?;
-    # } || {
-        [ ! -z "${DB_CONNECTION_DATABASE}" ] || \
-        [ ! -z "${DB_CONNECTION_USER}"     ] || \
-        [ ! -z "${DB_CONNECTION_PASSWORD}" ] || \
-        [ ! -z "${DB_CONNECTION_HOST}"     ] || \
-        return;
-
-        _start;
-    # }
+    [ ! -z ${@} ] && {
+        ${@}
+        return $?;
+    } 
+    
+    
+    [ ! -z "${DB_CONNECTION_DATABASE}" ] && \
+    [ ! -z "${DB_CONNECTION_USER}"     ] && \
+    [ ! -z "${DB_CONNECTION_PASSWORD}" ] && \
+    [ ! -z "${DB_CONNECTION_HOST}"     ] && {
+        local i=0
+        while [ $i -lt 30 ]; do
+            i=$((i+1));
+            nc -zv ${DB_CONNECTION_HOST} 3306 && {
+                _start;
+            }
+            sleep 20;
+            echo ":: waiting db in ${DB_CONNECTION_HOST}/${DB_CONNECTION_DATABASE} retry ${i}...";
+        done
+    }
+    return 1;
 }
 
 main $@;
