@@ -38,6 +38,9 @@ function _start() {
                     -D"${DB_CONNECTION_DATABASE}";
 
                 mv -v .init/init.sql .init/init.$(date -I).sql;
+
+                local myip=$(egrep $HOSTNAME /etc/hosts| cut -f 1);
+                sed -e "s/127.0.0.1/${myip}/" -i 
             }
         set +xv;
     }
