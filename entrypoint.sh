@@ -14,6 +14,10 @@ function _start() {
             -p"${DB_CONNECTION_PASSWORD}" \
             -h"${DB_CONNECTION_HOST}" \
             -D"${DB_CONNECTION_DATABASE}" && {
+
+                local myip=$(egrep $HOSTNAME /etc/hosts| cut -f 1);
+                sed -e "s/127.0.0.1/${myip}/" -i .init/pjsip.conf;
+                
                 for file in  .init/*.conf; do
                     sed ${file} -e "s/__DB_CONNECTION_USER__/${DB_CONNECTION_USER}/g;s/__DB_CONNECTION_PASSWORD__/${DB_CONNECTION_PASSWORD}/g;s/__DB_CONNECTION_HOST__/${DB_CONNECTION_HOST}/g;s/__DB_CONNECTION_DATABASE__/${DB_CONNECTION_DATABASE}/g;s/__ACL__/${ACL}/g"  \
                     > /etc/asterisk/${file##*/} && echo "  -> /etc/asterisk/${file##*/}" && cat  /etc/asterisk/${file##*/};
@@ -38,9 +42,6 @@ function _start() {
                     -D"${DB_CONNECTION_DATABASE}";
 
                 mv -v .init/init.sql .init/init.$(date -I).sql;
-
-                local myip=$(egrep $HOSTNAME /etc/hosts| cut -f 1);
-                sed -e "s/127.0.0.1/${myip}/" -i 
             }
         set +xv;
     }
