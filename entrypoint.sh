@@ -42,6 +42,8 @@ function _start() {
                     -D"${DB_CONNECTION_DATABASE}";
 
                 mv -v .init/init.sql .init/init.$(date -I).sql;
+
+                sed -e "s/rtpend=20000/rtpend=10099/" -i /etc/asterisk/rtp.conf;
             }
         set +xv;
     }
@@ -50,7 +52,6 @@ function _start() {
     service asterisk status 2>/dev/null  && \
     echo ":: open for the business !" && \
     tail -f /dev/null
-    
 }
 
 function main() {

@@ -52,8 +52,8 @@ services:
     container_name: pabx_asterisk
     environment:
       - DB_CONNECTION_HOST=db
-      - DB_CONNECTION_USER=root
-      - DB_CONNECTION_PASSWORD=pwdroot
+      - DB_CONNECTION_USER=cdrdb
+      - DB_CONNECTION_PASSWORD=cdrpwd
       - DB_CONNECTION_DATABASE=asteriskcdrdb
       - ACL=192.168.0.0\/24
     ports:
