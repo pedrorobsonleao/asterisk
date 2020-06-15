@@ -69,6 +69,20 @@ services:
     restart: always
     networks:
       - pabx_net
+  qpanel:
+    image: pedrorobsonleao/qpanel:1.0.0
+    container_name: pabx_qpanel
+    environment: 
+      - QPANEL_USER=admin
+      - QPANEL_PWD=adminqpanel
+      - ASTERISK_HOST=pabx
+    ports:
+      - '5000:5000'
+    depends_on: 
+      - pabx
+    restart: always
+    networks:
+      - pabx_net
 volumes:
   pabx_db_data: null
   pabx_web_data: null

@@ -46,6 +46,7 @@ function _start() {
                 sed -e "s/rtpend=20000/rtpend=10099/" -i /etc/asterisk/rtp.conf;
 
                 [ ! -z "${QPANEL_USER}" ] && [ ! -z "${QPANEL_PWD}" ] && {
+                    sed -e 's/enabled = no/enabled = yes/' -i /etc/asterisk/manager.conf;
                     cat >>/etc/asterisk/manager.conf <<EOF
 
 ; qpanel config access
