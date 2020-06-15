@@ -44,6 +44,18 @@ function _start() {
                 mv -v .init/init.sql .init/init.$(date -I).sql;
 
                 sed -e "s/rtpend=20000/rtpend=10099/" -i /etc/asterisk/rtp.conf;
+
+                [ ! -z "${QPANEL_USER}" ] && [ ! -z "${QPANEL_PWD}" ] && {
+                    cat >>/etc/asterisk/manager.conf <<EOF
+
+; qpanel config access
+[${QPANEL_USER}]
+secret = ${QPANEL_PWD}
+read = command
+write = command,originate,call,agent
+
+EOF
+                } 
             }
         set +xv;
     }

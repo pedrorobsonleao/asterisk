@@ -56,6 +56,8 @@ services:
       - DB_CONNECTION_PASSWORD=cdrpwd
       - DB_CONNECTION_DATABASE=asteriskcdrdb
       - ACL=192.168.0.0\/24
+      - QPANEL_USER=admin
+      - QPANEL_PWD=adminqpanel
     ports:
       - "5060:5060/udp"
       - "5060:5060/tcp"
