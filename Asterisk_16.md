@@ -374,7 +374,7 @@ cat <<EOF > /etc/asterisk/pjsip.conf
 
 [global]
 type = global
-default_realm=187.60.51.17
+default_realm=127.0.0.1
 max_forwards=70
 user_agent=PABXBR
 keep_alive_interval=30
