@@ -21,6 +21,8 @@ function _start() {
 
                 sed .init/odbc.ini -e "s/__DB_CONNECTION_USER__/${DB_CONNECTION_USER}/g;s/__DB_CONNECTION_PASSWORD__/${DB_CONNECTION_PASSWORD}/g;s/__DB_CONNECTION_HOST__/${DB_CONNECTION_HOST}/g;s/__DB_CONNECTION_DATABASE__/${DB_CONNECTION_DATABASE}/g"  \
                 > /etc/odbc.ini && echo "  -> /etc/odbc.ini" && cat  /etc/odbc.ini;
+
+                cp -v .init/odbcinst.ini /etc;
                 
                 sed -e "/^sqlalchemy.url/s/sqlalchemy.url.*/sqlalchemy.url = mysql:\/\/${DB_CONNECTION_USER}:${DB_CONNECTION_PASSWORD}@${DB_CONNECTION_HOST}\/${DB_CONNECTION_DATABASE}/" -i /var/lib/asterisk/ast-db-manage/config.ini.sample && \
                 echo "  -> /var/lib/asterisk/ast-db-manage/config.ini.sample" && cat  /var/lib/asterisk/ast-db-manage/config.ini.sample && \
