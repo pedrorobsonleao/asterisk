@@ -23,6 +23,14 @@ This stack create a virtual pabx with four internal phone number
 |7003|7003|ip from you server|
 |7004|7004|ip from you server|
 
+## sipphone
+
+I use [microsip softphone](https://www.microsip.org/downloads) to make a internal call between internal's.
+
+I use this configurations:
+
+![microsip configuration](microsipcfg.jpg)
+
 ## more informations
 
 see the file `docker-compose.yml`
