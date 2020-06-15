@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `cdr`;
 CREATE TABLE IF NOT EXISTS `cdr` (
    `id`           INT(11)     UNSIGNED NOT NULL AUTO_INCREMENT,
    `calldate`     DATETIME     NOT NULL,
