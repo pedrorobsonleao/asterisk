@@ -14,7 +14,8 @@ services:
     ports:
       - '3306:3306'
     volumes:
-      - 'pabx_db_data:/data'
+      # - 'pabx_db_data:/data'
+      - '/var/asterisk/db:/var/lib/mysql'
     restart: always
     networks:
       - pabx_net
@@ -41,7 +42,8 @@ services:
     entrypoint:
       - ./entrypoint.sh
     volumes:
-      - 'pabx_web_data:/var/spool/asterisk/monitor'
+      # - 'pabx_web_data:/var/spool/asterisk/monitor'
+      - '/var/asterisk/data/spool/asterisk/monitor:/var/spool/asterisk/monitor'
     depends_on:
       - db
     restart: always
@@ -59,12 +61,20 @@ services:
       - QPANEL_USER=admin
       - QPANEL_PWD=adminqpanel
     ports:
+      # - "4569:4569/udp"
+      # - "4569:4569/tcp"
       - "5060:5060/udp"
       - "5060:5060/tcp"
+      # - "5061:5061/udp"
+      # - "5061:5061/tcp"
       - "10000-10099:10000-10099/udp"
       - "8088:8088"
       - "8089:8089"
+    volumes:
+      # - 'pabx_data:/var/asterisk/'
+      - '/var/asterisk/data:/var/asterisk'
     depends_on:
+      - db
       - cdr
     restart: always
     networks:
@@ -79,10 +89,12 @@ services:
     ports:
       - '5000:5000'
     depends_on: 
+      - db
       - pabx
     restart: always
     networks:
       - pabx_net
-volumes:
-  pabx_db_data: null
-  pabx_web_data: null
+# volumes:
+#   pabx_data: /var/asterisk/data/
+#   pabx_db_data: /var/asterisk/db/
+#   pabx_web_data: /var/asterisk/data/spool/asterisk/monitor/

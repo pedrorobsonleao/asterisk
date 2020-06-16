@@ -6,48 +6,66 @@ function _start() {
 
     [ -f .init/init.sql ] && {
         # load initial DB Script
-        echo ":: Loading initial config ...";
+        echo ":: Loading config ...";
         set -xv;
-        cat .init/init.sql | \
-        mysql \
-            -u"${DB_CONNECTION_USER}" \
-            -p"${DB_CONNECTION_PASSWORD}" \
-            -h"${DB_CONNECTION_HOST}" \
-            -D"${DB_CONNECTION_DATABASE}" && {
 
-                local myip=$(egrep $HOSTNAME /etc/hosts| cut -f 1);
-                sed -e "s/127.0.0.1/${myip}/" -i .init/pjsip.conf;
-                
-                for file in  .init/*.conf; do
-                    sed ${file} -e "s/__DB_CONNECTION_USER__/${DB_CONNECTION_USER}/g;s/__DB_CONNECTION_PASSWORD__/${DB_CONNECTION_PASSWORD}/g;s/__DB_CONNECTION_HOST__/${DB_CONNECTION_HOST}/g;s/__DB_CONNECTION_DATABASE__/${DB_CONNECTION_DATABASE}/g;s/__ACL__/${ACL}/g"  \
-                    > /etc/asterisk/${file##*/} && echo "  -> /etc/asterisk/${file##*/}" && cat  /etc/asterisk/${file##*/};
-                done
+        [ ! -f /var/asterisk/init.sql ] && {
+            cat .init/init.sql | \
+            mysql \
+                -u"${DB_CONNECTION_USER}" \
+                -p"${DB_CONNECTION_PASSWORD}" \
+                -h"${DB_CONNECTION_HOST}" \
+                -D"${DB_CONNECTION_DATABASE}" || return 1;
+            echo ":::: >>>-> initialize cdr table."
+        }
 
-                sed .init/odbc.ini -e "s/__DB_CONNECTION_USER__/${DB_CONNECTION_USER}/g;s/__DB_CONNECTION_PASSWORD__/${DB_CONNECTION_PASSWORD}/g;s/__DB_CONNECTION_HOST__/${DB_CONNECTION_HOST}/g;s/__DB_CONNECTION_DATABASE__/${DB_CONNECTION_DATABASE}/g"  \
-                > /etc/odbc.ini && echo "  -> /etc/odbc.ini" && cat  /etc/odbc.ini;
+        local myip=$(egrep $HOSTNAME /etc/hosts| cut -f 1);
+        sed -e "s/127.0.0.1/${myip}/" -i .init/pjsip.conf;
+        
+        for file in  .init/*.conf; do
+            sed ${file} -e "s/__DB_CONNECTION_USER__/${DB_CONNECTION_USER}/g;s/__DB_CONNECTION_PASSWORD__/${DB_CONNECTION_PASSWORD}/g;s/__DB_CONNECTION_HOST__/${DB_CONNECTION_HOST}/g;s/__DB_CONNECTION_DATABASE__/${DB_CONNECTION_DATABASE}/g;s/__ACL__/${ACL}/g"  \
+            > /etc/asterisk/${file##*/} && echo "  -> /etc/asterisk/${file##*/}" && cat  /etc/asterisk/${file##*/};
+        done
 
-                cp -v .init/odbcinst.ini /etc;
-                
-                sed -e "/^sqlalchemy.url/s/sqlalchemy.url.*/sqlalchemy.url = mysql:\/\/${DB_CONNECTION_USER}:${DB_CONNECTION_PASSWORD}@${DB_CONNECTION_HOST}\/${DB_CONNECTION_DATABASE}/" -i /var/lib/asterisk/ast-db-manage/config.ini.sample && \
-                echo "  -> /var/lib/asterisk/ast-db-manage/config.ini.sample" && cat  /var/lib/asterisk/ast-db-manage/config.ini.sample && \
-                cd /var/lib/asterisk/ast-db-manage/ && \
-                alembic -c ./config.ini.sample upgrade head && \
-                cd -;
+        sed .init/odbc.ini -e "s/__DB_CONNECTION_USER__/${DB_CONNECTION_USER}/g;s/__DB_CONNECTION_PASSWORD__/${DB_CONNECTION_PASSWORD}/g;s/__DB_CONNECTION_HOST__/${DB_CONNECTION_HOST}/g;s/__DB_CONNECTION_DATABASE__/${DB_CONNECTION_DATABASE}/g"  \
+        > /etc/odbc.ini && echo "  -> /etc/odbc.ini" && cat  /etc/odbc.ini;
 
-                cat .init/internal.sql | \
-                mysql \
-                    -u"${DB_CONNECTION_USER}" \
-                    -p"${DB_CONNECTION_PASSWORD}" \
-                    -h"${DB_CONNECTION_HOST}" \
-                    -D"${DB_CONNECTION_DATABASE}";
+        cp -v .init/odbcinst.ini /etc;
+        
+        sed -e "/^sqlalchemy.url/s/sqlalchemy.url.*/sqlalchemy.url = mysql:\/\/${DB_CONNECTION_USER}:${DB_CONNECTION_PASSWORD}@${DB_CONNECTION_HOST}\/${DB_CONNECTION_DATABASE}/" -i /var/lib/asterisk/ast-db-manage/config.ini.sample && \
+        echo "  -> /var/lib/asterisk/ast-db-manage/config.ini.sample" && cat  /var/lib/asterisk/ast-db-manage/config.ini.sample && \
+        cd /var/lib/asterisk/ast-db-manage/ && \
+        [ ! -f /var/asterisk/init.sql ] && alembic -c ./config.ini.sample upgrade head && \
+        cd -;
 
-                mv -v .init/init.sql .init/init.$(date -I).sql;
+        [ ! -f /var/asterisk/init.sql ] && {
+            cat .init/internal.sql | \
+            mysql \
+                -u"${DB_CONNECTION_USER}" \
+                -p"${DB_CONNECTION_PASSWORD}" \
+                -h"${DB_CONNECTION_HOST}" \
+                -D"${DB_CONNECTION_DATABASE}" && \
+                echo ":::: >>>-> initialize internal numbers."
+        }
 
-                sed -e "s/rtpend=20000/rtpend=10099/" -i /etc/asterisk/rtp.conf;
+        sed -e "s/rtpend=20000/rtpend=10099/" -i /etc/asterisk/rtp.conf;
 
-                [ ! -z "${QPANEL_USER}" ] && [ ! -z "${QPANEL_PWD}" ] && {
-                    sed -e 's/enabled = no/enabled = yes/' -i /etc/asterisk/manager.conf;
-                    cat >>/etc/asterisk/manager.conf <<EOF
+        [ ! -f /var/asterisk/init.sql ] && {
+            mkdir -vp /var/asterisk/{log,spool};
+            cp -v .init/init.sql /var/asterisk/;
+
+            rm -rf /var/log/asterisk /var/spool/asterisk && {
+                ln -s /var/asterisk/log /var/log/asterisk
+                mkdir -vp /var/log/asterisk/{cdr-csv,cdr-custom,cel-custom};
+                ln -s /var/asterisk/spool /var/spool/asterisk;
+                mkdir -vp /var/spool/asterisk/{tmp,system,recording,monitor,meetme,dictate,outgoing};
+                mkdir -vp /var/spool/asterisk/voicemail/default/1234/{INBOX,en};
+            }
+        }
+
+        [ ! -z "${QPANEL_USER}" ] && [ ! -z "${QPANEL_PWD}" ] && {
+            sed -e 's/enabled = no/enabled = yes/' -i /etc/asterisk/manager.conf;
+            cat >>/etc/asterisk/manager.conf <<EOF
 
 ; qpanel config access
 [${QPANEL_USER}]
@@ -56,9 +74,9 @@ read = command
 write = command,originate,call,agent
 
 EOF
-                } 
-            }
-        set +xv;
+        } 
+    
+set +xv;
     }
 
     service asterisk start 2>/dev/null && \

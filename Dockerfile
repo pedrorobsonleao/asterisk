@@ -64,12 +64,17 @@ RUN apt update &&                  \
     make samples &&                                                                    \
     make config &&                                                                     \
     ldconfig &&                                                                        \
-    mkdir -vp /var/lib/asterisk/sounds/pt-br  /etc/asterisk /var/{lib,log,spool,run}/asterisk /usr/x86_64-linux-gnu/asterisk && \
+    mkdir -vp \
+        /var/lib/asterisk/sounds/pt-br  \
+        /etc/asterisk \
+        /var/asterisk \
+        /var/lib/asterisk \
+        /var/run/asterisk \
+        /usr/x86_64-linux-gnu/asterisk && \
     cd /var/lib/asterisk/sounds/pt-br &&                                               \
     groupadd asterisk &&                                                               \
     useradd -r -d /var/lib/asterisk -g asterisk asterisk &&                            \
     usermod -aG audio,dialout asterisk &&                                              \
-    # chown -hvR asterisk:asterisk /etc/asterisk /var/{lib,log,spool,run}/asterisk /usr/x86_64-linux-gnu/asterisk && \
     wget -O core.zip https://www.asterisksounds.org/pt-br/download/asterisk-sounds-core-pt-BR-sln16.zip &&   \
     wget -O extra.zip https://www.asterisksounds.org/pt-br/download/asterisk-sounds-extra-pt-BR-sln16.zip && \
     ls *.zip && \

@@ -39,8 +39,3 @@ I use this configurations:
 ## more informations
 
 see the file `docker-compose.yml`
-
-## tasks list
-- [ ] create volume to save logs.
-- [ ] create volume to save call records.
-- [ ] run initial script only in first start.
