@@ -30,6 +30,7 @@ services:
       - DB_CONNECTION_PASSWORD=cdrpwd
       - DB_CONNECTION_DATABASE=asteriskcdrdb
       - DB_CONNECTION_CHARSET=utf8
+      - DB_INIT=false
       - CDR_TABLE=cdr
       - SESSION_KEY=123hjhfds7&&&kjfh&&&788
       - AUTH_AD_DOMAIN=exemple

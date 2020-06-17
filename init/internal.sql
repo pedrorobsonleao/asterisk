@@ -1,3 +1,22 @@
+--
+
+UPDATE ps_endpoints SET send_pai='yes';
+UPDATE ps_endpoints SET media_use_received_transport='yes';
+UPDATE ps_endpoints SET trust_id_inbound='yes';
+UPDATE ps_endpoints SET media_encryption='no';
+UPDATE ps_endpoints SET rtp_symmetric='yes';
+UPDATE ps_endpoints SET rewrite_contact='yes';
+UPDATE ps_endpoints SET force_rport='yes';
+UPDATE ps_endpoints SET allow='ulaw,alaw';
+UPDATE ps_endpoints SET allow='ulaw,alaw';
+UPDATE ps_endpoints SET direct_media='no';
+
+UPDATE ps_aors SET default_expiration=60;
+UPDATE ps_aors SET minimum_expiration=120;
+UPDATE ps_aors SET remove_existing='yes';
+UPDATE ps_aors SET max_contacts=1;
+
+-- initialize internal ramal
 insert into ps_aors (id, max_contacts) values (7001, 1);
 insert into ps_aors (id, max_contacts) values (7002, 1);
 insert into ps_aors (id, max_contacts) values (7003, 1);
