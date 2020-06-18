@@ -1,5 +1,22 @@
---
+-- webcdr initializa
+DROP TABLE IF EXISTS `webuser`;
+CREATE TABLE `webuser` (
+   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+   `name` VARCHAR(100) NOT NULL DEFAULT '',
+   `username` VARCHAR(100) NOT NULL UNIQUE,
+   `password` VARCHAR(100) NOT NULL,
+   `acl` VARCHAR(1024) NOT NULL DEFAULT '',
+   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   `admin` INT(1) NOT NULL DEFAULT 0,
+   `acl_in` INT(1) NOT NULL DEFAULT 0,
+   `auth_ad` INT(1) NOT NULL DEFAULT 0,
+   PRIMARY KEY (`id`)
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+INSERT INTO `webuser` (`name`,`username`,`password`,`admin`) VALUES ('Administrator','admin','admincdr',1);
+
+-- nat settings
 UPDATE ps_endpoints SET send_pai='yes';
 UPDATE ps_endpoints SET media_use_received_transport='yes';
 UPDATE ps_endpoints SET trust_id_inbound='yes';
